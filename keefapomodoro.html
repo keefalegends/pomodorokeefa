@@ -1,0 +1,350 @@
+<!doctype html>
+<html lang="id">
+<head>
+  <meta charset="utf-8" />
+  <meta name="viewport" content="width=device-width,initial-scale=1" />
+  <title>Pomodoro Timer — Keefa Edition</title>
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;600;700;800&display=swap" rel="stylesheet">
+  <style>
+    :root{
+      --bg:#0f1724; /* deep navy */
+      --card:#0b1220;
+      --muted:#98a0b3;
+      --accent:#ff6b6b; /* tomato */
+      --accent-2:#7c5cff; /* violet */
+      --glass: rgba(255,255,255,0.04);
+      --glass-2: rgba(255,255,255,0.02);
+      --accent-glow: 0 8px 30px rgba(124,92,255,0.18);
+      --radius:20px;
+    }
+    *{box-sizing:border-box}
+    html,body{height:100%}
+    body{
+      margin:0;
+      font-family:Inter, system-ui, -apple-system, "Segoe UI", Roboto, "Helvetica Neue", Arial;
+      background: radial-gradient(1200px 600px at 10% 10%, rgba(124,92,255,0.08), transparent),
+                  linear-gradient(180deg, rgba(15,23,36,1) 0%, rgba(6,10,16,1) 100%);
+      color:#e6eef8;
+      display:flex;
+      align-items:center;
+      justify-content:center;
+      padding:32px;
+    }
+
+    .card{
+      width:min(980px, 96vw);
+      background:linear-gradient(180deg, rgba(255,255,255,0.02), rgba(255,255,255,0.01));
+      border-radius:var(--radius);
+      padding:28px;
+      box-shadow: 0 10px 40px rgba(2,6,23,0.6);
+      display:grid;
+      grid-template-columns: 380px 1fr;
+      gap:24px;
+      align-items:center;
+      backdrop-filter: blur(6px) saturate(120%);
+    }
+
+    .brand{
+      display:flex;align-items:center;gap:14px;margin-bottom:8px;
+    }
+    .logo{
+      width:48px;height:48px;border-radius:12px;background:linear-gradient(135deg,var(--accent),var(--accent-2));
+      display:flex;align-items:center;justify-content:center;font-weight:700;color:white;box-shadow:var(--accent-glow);
+    }
+    h1{font-size:18px;margin:0}
+    p.lead{margin:6px 0 18px;color:var(--muted);font-size:13px}
+
+    /* TIMER LEFT PANEL */
+    .timer-wrap{display:flex;flex-direction:column;align-items:center;gap:14px}
+
+    .progress-wrap{position:relative;width:300px;height:300px}
+    svg{transform:rotate(-90deg)}
+    .bg-circle{filter:blur(0.2px)}
+    .time-display{
+      position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;
+      pointer-events:none;text-align:center
+    }
+    .minutes{font-size:56px;font-weight:700;letter-spacing:1px}
+    .status{font-size:13px;color:var(--muted);margin-top:6px}
+
+    .controls{display:flex;gap:10px;margin-top:6px}
+    .btn{
+      border:0;padding:10px 14px;border-radius:12px;background:var(--glass);color:inherit;font-weight:600;cursor:pointer;
+      box-shadow: 0 6px 18px rgba(2,6,23,0.6);transition:transform .12s ease,opacity .12s ease;
+    }
+    .btn:active{transform:translateY(1px)}
+    .btn.primary{background:linear-gradient(90deg,var(--accent),var(--accent-2));color:white;box-shadow:var(--accent-glow)}
+    .btn.ghost{background:transparent;border:1px solid rgba(255,255,255,0.04)}
+
+    /* RIGHT PANEL */
+    .settings{padding:18px;border-radius:14px;background:linear-gradient(180deg,var(--glass),transparent);box-shadow:0 6px 20px rgba(2,6,23,0.6)}
+    .row{display:flex;align-items:center;justify-content:space-between;margin-bottom:12px}
+    .row label{font-size:13px;color:var(--muted)}
+    .number{display:flex;gap:8px;align-items:center}
+    .small-num{width:66px;padding:8px;border-radius:10px;background:var(--glass);text-align:center;font-weight:700}
+
+    .preset-buttons{display:flex;gap:8px;margin-top:12px}
+    .preset{padding:8px 10px;border-radius:10px;background:transparent;border:1px solid rgba(255,255,255,0.04);cursor:pointer}
+
+    .footer-note{font-size:12px;color:var(--muted);margin-top:10px}
+
+    /* responsive */
+    @media (max-width:860px){
+      .card{grid-template-columns:1fr;}
+      .progress-wrap{width:260px;height:260px}
+    }
+  </style>
+</head>
+<body>
+  <div class="card">
+    <div>
+      <div class="brand">
+        <div class="logo">P</div>
+        <div>
+          <h1>Pomodoro Timer</h1>
+          <p class="lead">Fokus 25 menit, istirahat 5 menit. Sesuaikan, mulai, dan tetap produktif.</p>
+        </div>
+      </div>
+
+      <div class="timer-wrap">
+        <div class="progress-wrap">
+          <svg width="300" height="300" viewBox="0 0 120 120" xmlns="http://www.w3.org/2000/svg">
+            <defs>
+              <linearGradient id="g1" x1="0%" x2="100%" y1="0%" y2="100%">
+                <stop offset="0%" stop-color="#ff6b6b" />
+                <stop offset="100%" stop-color="#7c5cff" />
+              </linearGradient>
+            </defs>
+            <circle class="bg-circle" cx="60" cy="60" r="50" stroke="rgba(255,255,255,0.04)" stroke-width="8" fill="none"/>
+            <circle id="progress" cx="60" cy="60" r="50" stroke="url(#g1)" stroke-width="8" stroke-linecap="round" fill="none" stroke-dasharray="314" stroke-dashoffset="0"/>
+          </svg>
+          <div class="time-display">
+            <div class="minutes" id="time">25:00</div>
+            <div class="status" id="mode">Work</div>
+            <div class="controls">
+              <button class="btn primary" id="start">Start</button>
+              <button class="btn ghost" id="pause">Pause</button>
+              <button class="btn" id="reset">Reset</button>
+            </div>
+          </div>
+        </div>
+      </div>
+
+    </div>
+
+    <div>
+      <div class="settings">
+        <div class="row">
+          <label>Work duration</label>
+          <div class="number">
+            <input id="workInput" type="number" min="1" max="180" value="25" class="small-num"> min
+          </div>
+        </div>
+        <div class="row">
+          <label>Short break</label>
+          <div class="number">
+            <input id="shortInput" type="number" min="1" max="60" value="5" class="small-num"> min
+          </div>
+        </div>
+        <div class="row">
+          <label>Long break</label>
+          <div class="number">
+            <input id="longInput" type="number" min="5" max="180" value="15" class="small-num"> min
+          </div>
+        </div>
+
+        <div class="row">
+          <label>Cycles before long break</label>
+          <div class="number">
+            <input id="cyclesInput" type="number" min="1" max="10" value="4" class="small-num">
+          </div>
+        </div>
+
+        <div class="preset-buttons">
+          <button class="preset" data-w="25" data-s="5" data-l="15">Default</button>
+          <button class="preset" data-w="50" data-s="10" data-l="30">Deep Work</button>
+          <button class="preset" data-w="45" data-s="5" data-l="20">School</button>
+        </div>
+
+        <div style="margin-top:14px;display:flex;gap:8px;align-items:center;">
+          <input type="checkbox" id="soundToggle" checked>
+          <label for="soundToggle" style="color:var(--muted);font-size:13px">Play sound on session end</label>
+        </div>
+
+        <div style="margin-top:12px">
+          <button id="apply" class="btn">Apply settings</button>
+          <button id="skip" class="btn ghost">Skip session</button>
+        </div>
+
+        <div class="footer-note">Tip: tekan <strong>Space</strong> untuk Start/Pause. Timer ini bekerja sepenuhnya di browser Anda.</div>
+      </div>
+    </div>
+  </div>
+
+  <script>
+    // --- State ---
+    const workInput = document.getElementById('workInput');
+    const shortInput = document.getElementById('shortInput');
+    const longInput = document.getElementById('longInput');
+    const cyclesInput = document.getElementById('cyclesInput');
+    const applyBtn = document.getElementById('apply');
+    const startBtn = document.getElementById('start');
+    const pauseBtn = document.getElementById('pause');
+    const resetBtn = document.getElementById('reset');
+    const skipBtn = document.getElementById('skip');
+    const timeEl = document.getElementById('time');
+    const modeEl = document.getElementById('mode');
+    const progressEl = document.getElementById('progress');
+    const soundToggle = document.getElementById('soundToggle');
+
+    let workMinutes = parseInt(workInput.value,10);
+    let shortMinutes = parseInt(shortInput.value,10);
+    let longMinutes = parseInt(longInput.value,10);
+    let cyclesBeforeLong = parseInt(cyclesInput.value,10);
+
+    let currentMode = 'work'; // 'work', 'short', 'long'
+    let intervalId = null;
+    let remaining = workMinutes * 60; // seconds
+    let total = remaining;
+    let running = false;
+    let completedCycles = 0;
+
+    const circumference = 2 * Math.PI * 50; // r=50
+    progressEl.style.strokeDasharray = circumference;
+
+    function formatTime(s){
+      const m = Math.floor(s/60).toString().padStart(2,'0');
+      const sec = (s%60).toString().padStart(2,'0');
+      return `${m}:${sec}`;
+    }
+
+    function setMode(mode){
+      currentMode = mode;
+      modeEl.textContent = mode === 'work' ? 'Work' : (mode === 'short' ? 'Short Break' : 'Long Break');
+      document.body.style.setProperty('--accent', mode === 'work' ? '#ff6b6b' : '#4fd1c5');
+      document.body.style.setProperty('--accent-2', mode === 'work' ? '#7c5cff' : '#2bdbb8');
+    }
+
+    function updateDisplay(){
+      timeEl.textContent = formatTime(remaining);
+      // update circle progress
+      const pct = 1 - (remaining / total);
+      const offset = circumference * (1 - pct);
+      progressEl.style.strokeDashoffset = offset;
+    }
+
+    function startTimer(){
+      if(running) return;
+      running = true;
+      startBtn.disabled = true;
+      pauseBtn.disabled = false;
+      intervalId = setInterval(()=>{
+        if(remaining>0){
+          remaining -= 1;
+          updateDisplay();
+        }else{
+          clearInterval(intervalId);
+          running = false;
+          startBtn.disabled = false;
+          onSessionEnd();
+        }
+      },1000);
+    }
+
+    function pauseTimer(){
+      if(intervalId) clearInterval(intervalId);
+      running = false;
+      startBtn.disabled = false;
+      pauseBtn.disabled = true;
+    }
+
+    function resetTimer(){
+      pauseTimer();
+      if(currentMode === 'work') remaining = workMinutes*60;
+      else if(currentMode === 'short') remaining = shortMinutes*60;
+      else remaining = longMinutes*60;
+      total = remaining;
+      updateDisplay();
+    }
+
+    function applySettings(){
+      workMinutes = Math.max(1, parseInt(workInput.value,10) || 25);
+      shortMinutes = Math.max(1, parseInt(shortInput.value,10) || 5);
+      longMinutes = Math.max(1, parseInt(longInput.value,10) || 15);
+      cyclesBeforeLong = Math.max(1, parseInt(cyclesInput.value,10) || 4);
+      // apply to current if not running
+      if(!running){
+        if(currentMode === 'work') remaining = workMinutes*60;
+        else if(currentMode === 'short') remaining = shortMinutes*60;
+        else remaining = longMinutes*60;
+        total = remaining;
+        updateDisplay();
+      }
+    }
+
+    function onSessionEnd(){
+      // play sound if enabled
+      if(soundToggle.checked){
+        try{ new Audio('data:audio/wav;base64,UklGRiQAAABXQVZFZm10IBAAAAABAAEAESsAACJWAAACABAAZGF0YQAAAAA=').play(); }catch(e){}
+      }
+
+      if(currentMode === 'work'){
+        completedCycles += 1;
+        if(completedCycles % cyclesBeforeLong === 0){
+          setMode('long');
+          remaining = longMinutes*60;
+        }else{
+          setMode('short');
+          remaining = shortMinutes*60;
+        }
+      }else{
+        // ended a break -> go to work
+        setMode('work');
+        remaining = workMinutes*60;
+      }
+      total = remaining;
+      updateDisplay();
+      // auto-start next session
+      startTimer();
+    }
+
+    // event bindings
+    startBtn.addEventListener('click', startTimer);
+    pauseBtn.addEventListener('click', pauseTimer);
+    resetBtn.addEventListener('click', ()=>{ resetTimer(); });
+    applyBtn.addEventListener('click', ()=>{ applySettings(); });
+    skipBtn.addEventListener('click', ()=>{
+      if(intervalId) clearInterval(intervalId);
+      running = false;
+      // force end
+      onSessionEnd();
+    });
+
+    // preset buttons
+    document.querySelectorAll('.preset').forEach(btn =>{
+      btn.addEventListener('click', ()=>{
+        workInput.value = btn.dataset.w;
+        shortInput.value = btn.dataset.s;
+        longInput.value = btn.dataset.l;
+        applySettings();
+      })
+    })
+
+    // keyboard space to toggle start/pause
+    window.addEventListener('keydown', (e)=>{
+      if(e.code === 'Space'){
+        e.preventDefault();
+        if(running) pauseTimer(); else startTimer();
+      }
+    })
+
+    // initialize
+    setMode('work');
+    applySettings();
+    pauseBtn.disabled = true;
+    updateDisplay();
+  </script>
+</body>
+</html>
