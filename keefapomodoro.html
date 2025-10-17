@@ -13,7 +13,7 @@
 
         body {
             font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
-            background: linear-gradient(135deg, #06707a 0%, #010108 100%);
+            background: linear-gradient(135deg, #040f41 0%, #000000 100%);
             min-height: 100vh;
             display: flex;
             justify-content: center;
@@ -22,7 +22,7 @@
         }
 
         .container {
-            background: rgba(255, 255, 255, 0.719);
+            background: rgba(255, 255, 255, 0.95);
             border-radius: 30px;
             padding: 50px;
             box-shadow: 0 20px 60px rgba(0, 0, 0, 0.3);
@@ -68,7 +68,7 @@
             font-size: 6em;
             font-weight: bold;
             color: #333;
-            margin: 40px 0;
+            margin: 50px 0;
             font-family: 'Courier New', monospace;
         }
 
@@ -147,16 +147,26 @@
 
         .progress-ring {
             position: relative;
-            margin: 0 auto 20px;
+            margin: 0 auto 30px;
         }
 
         .progress-circle {
             transform: rotate(-90deg);
+            transform-origin: center;
+        }
+
+        .progress-circle.rotating {
+            animation: rotate 60s linear infinite;
+        }
+
+        @keyframes rotate {
+            from { transform: rotate(-90deg); }
+            to { transform: rotate(270deg); }
         }
 
         .progress-circle circle {
             fill: none;
-            stroke-width: 8;
+            stroke-width: 14;
             transition: stroke-dashoffset 0.5s;
         }
 
@@ -230,6 +240,7 @@
         const pomodoroCountEl = document.getElementById('pomodoroCount');
         const totalTimeEl = document.getElementById('totalTime');
         const progressBar = document.querySelector('.progress-bar');
+        const progressCircle = document.querySelector('.progress-circle');
 
         const modes = {
             pomodoro: 25 * 60,
@@ -260,6 +271,7 @@
             startBtn.style.display = 'none';
             pauseBtn.style.display = 'inline-block';
             timerDisplay.classList.add('running');
+            progressCircle.classList.add('rotating');
 
             interval = setInterval(() => {
                 timeLeft--;
@@ -269,6 +281,7 @@
                     clearInterval(interval);
                     isRunning = false;
                     timerDisplay.classList.remove('running');
+                    progressCircle.classList.remove('rotating');
                     
                     if (currentMode === 'pomodoro') {
                         pomodoroCount++;
@@ -291,6 +304,7 @@
             startBtn.style.display = 'inline-block';
             pauseBtn.style.display = 'none';
             timerDisplay.classList.remove('running');
+            progressCircle.classList.remove('rotating');
         }
 
         function resetTimer() {
