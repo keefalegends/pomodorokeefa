@@ -1,2 +1,2 @@
-# pomodorokeefa
-lazy essential helper for my lazy ahh
+# pomodoro
+idk why i make this for no reason anyways, hello!
